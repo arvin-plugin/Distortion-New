@@ -11,7 +11,9 @@ BackgroundComponent::BackgroundComponent()
 
 void BackgroundComponent::paint(Graphics& g)
 {
-    g.drawImage(backgroundImage, getLocalBounds().toFloat());
+    // Set the background to 200x359 size
+    Rectangle<float> bounds(0, 0, 200, 359);
+    g.drawImage(backgroundImage, bounds);
 }
 
 //==============================================================================
@@ -22,17 +24,14 @@ void KnobLookAndFeel::drawRotarySlider(Graphics& g, int x, int y, int width, int
                                         float sliderPos, float rotaryStartAngle, float rotaryEndAngle,
                                         Slider& slider)
 {
-    g.drawImage(knobImage, x, y, width, height, 0, 0, knobImage.getWidth(), knobImage.getHeight());
-    // Draw the rotary part
-    const float centreX = x + width * 0.5f;
-    const float centreY = y + height * 0.5f;
-    const float radius = jmin(width * 0.5f, height * 0.5f) - 10.0f;
-    const float angle = rotaryStartAngle + sliderPos * (rotaryEndAngle - rotaryStartAngle);
+    const int numFrames = knobImage.getHeight() / knobImage.getWidth(); // Calculate number of frames (1984/64 = 31 frames)
+    const int frameIndex = static_cast<int>(sliderPos * (numFrames - 1));  // Frame index based on slider position
+    const int frameHeight = knobImage.getWidth();  // Frame height is 64 (same as width)
 
-    Path p;
-    p.addLineSegment(Line<float>(centreX, centreY, centreX + radius * std::cos(angle), centreY - radius * std::sin(angle)), 2.0f);
-    g.setColour(Colours::white);
-    g.strokePath(p, PathStrokeType(2.0f));
+    // Draw the appropriate frame from the knob sprite
+    g.drawImage(knobImage, x, y, width, height, 
+                0, frameIndex * frameHeight,  // Source rectangle (from sprite sheet)
+                knobImage.getWidth(), frameHeight);  // Frame size (64x64)
 }
 
 //==============================================================================
@@ -72,8 +71,6 @@ DistortionAudioProcessorEditor::DistortionAudioProcessorEditor (DistortionAudioP
                 editorHeight += sliderHeight;
             }
 
-            //======================================
-
             else if (processor.parameters.parameterTypes[i] == "ToggleButton") {
                 ToggleButton* aButton;
                 toggles.add (aButton = new ToggleButton());
@@ -86,8 +83,6 @@ DistortionAudioProcessorEditor::DistortionAudioProcessorEditor (DistortionAudioP
                 components.add (aButton);
                 editorHeight += buttonHeight;
             }
-
-            //======================================
 
             else if (processor.parameters.parameterTypes[i] == "ComboBox") {
                 ComboBox* aComboBox;
@@ -104,8 +99,6 @@ DistortionAudioProcessorEditor::DistortionAudioProcessorEditor (DistortionAudioP
                 editorHeight += comboBoxHeight;
             }
 
-            //======================================
-
             Label* aLabel;
             labels.add (aLabel = new Label (parameter->name, parameter->name));
             aLabel->attachToComponent (components.getLast(), true);
@@ -117,15 +110,11 @@ DistortionAudioProcessorEditor::DistortionAudioProcessorEditor (DistortionAudioP
         }
     }
 
-    //======================================
-
     editorHeight += components.size() * editorPadding;
     setSize (editorWidth, editorHeight);
 }
 
-DistortionAudioProcessorEditor::~DistortionAudioProcessorEditor()
-{
-}
+DistortionAudioProcessorEditor::~DistortionAudioProcessorEditor() {}
 
 void DistortionAudioProcessorEditor::paint (Graphics& g)
 {
@@ -152,4 +141,3 @@ void DistortionAudioProcessorEditor::resized()
         r = r.removeFromBottom (r.getHeight() - editorPadding);
     }
 }
-
