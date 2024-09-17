@@ -51,7 +51,7 @@ private:
 
         sliderTextEntryBoxWidth = 100,
         sliderTextEntryBoxHeight = 25,
-        sliderHeight = 100,  // Increased height for knob
+        sliderHeight = 64,  // Increased height for knob
         buttonHeight = 25,
         comboBoxHeight = 25,
         labelWidth = 100,

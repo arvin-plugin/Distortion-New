@@ -24,15 +24,22 @@ void KnobLookAndFeel::drawRotarySlider(Graphics& g, int x, int y, int width, int
                                         float sliderPos, float rotaryStartAngle, float rotaryEndAngle,
                                         Slider& slider)
 {
-    const int numFrames = knobImage.getHeight() / knobImage.getWidth(); // Calculate number of frames (1984/64 = 31 frames)
+    const int numFrames = knobImage.getHeight() / knobImage.getWidth(); // Calculate number of frames
     const int frameIndex = static_cast<int>(sliderPos * (numFrames - 1));  // Frame index based on slider position
-    const int frameHeight = knobImage.getWidth();  // Frame height is 64 (same as width)
+    const int frameHeight = knobImage.getWidth();  // Frame height is 64 (same as width, since sprite is 64x1984)
+
+    // Calculate the size and position to center the knob in the available area
+    const int knobWidth = 64;   // Width of the knob
+    const int knobHeight = 64;  // Height of the knob
+    const int centerX = x + (width - knobWidth) / 2;   // Center horizontally
+    const int centerY = y + (height - knobHeight) / 2; // Center vertically
 
     // Draw the appropriate frame from the knob sprite
-    g.drawImage(knobImage, x, y, width, height, 
+    g.drawImage(knobImage, centerX, centerY, knobWidth, knobHeight, 
                 0, frameIndex * frameHeight,  // Source rectangle (from sprite sheet)
-                knobImage.getWidth(), frameHeight);  // Frame size (64x64)
+                knobWidth, frameHeight);      // Frame size (64x64)
 }
+
 
 //==============================================================================
 
