@@ -1,13 +1,39 @@
-/*
-  ==============================================================================
-
-    This file contains the basic framework code for a JUCE plugin editor.
-
-  ============================================================================== 
-*/
-
-#include "PluginProcessor.h"
 #include "PluginEditor.h"
+#include "PluginProcessor.h"
+
+//==============================================================================
+
+BackgroundComponent::BackgroundComponent()
+{
+    // Load the background image from binary resources
+    backgroundImage = ImageCache::getFromMemory(BinaryData::background_png, BinaryData::background_pngSize);
+}
+
+void BackgroundComponent::paint(Graphics& g)
+{
+    g.drawImage(backgroundImage, getLocalBounds().toFloat());
+}
+
+//==============================================================================
+
+KnobLookAndFeel::KnobLookAndFeel(Image knobImage) : knobImage(knobImage) {}
+
+void KnobLookAndFeel::drawRotarySlider(Graphics& g, int x, int y, int width, int height,
+                                        float sliderPos, float rotaryStartAngle, float rotaryEndAngle,
+                                        Slider& slider)
+{
+    g.drawImage(knobImage, x, y, width, height, 0, 0, knobImage.getWidth(), knobImage.getHeight());
+    // Draw the rotary part
+    const float centreX = x + width * 0.5f;
+    const float centreY = y + height * 0.5f;
+    const float radius = jmin(width * 0.5f, height * 0.5f) - 10.0f;
+    const float angle = rotaryStartAngle + sliderPos * (rotaryEndAngle - rotaryStartAngle);
+
+    Path p;
+    p.addLineSegment(Line<float>(centreX, centreY, centreX + radius * std::cos(angle), centreY - radius * std::sin(angle)), 2.0f);
+    g.setColour(Colours::white);
+    g.strokePath(p, PathStrokeType(2.0f));
+}
 
 //==============================================================================
 
@@ -18,18 +44,25 @@ DistortionAudioProcessorEditor::DistortionAudioProcessorEditor (DistortionAudioP
     int comboBoxCounter = 0;
 
     int editorHeight = 2 * editorMargin;
+    
+    // Add background component
+    addAndMakeVisible(backgroundComponent = new BackgroundComponent());
+
     for (int i = 0; i < parameters.size(); ++i) {
         if (const AudioProcessorParameterWithID* parameter =
                 dynamic_cast<AudioProcessorParameterWithID*> (parameters[i])) {
 
             if (processor.parameters.parameterTypes[i] == "Slider") {
+                // Create a custom slider
                 Slider* aSlider;
                 sliders.add (aSlider = new Slider());
+                aSlider->setSliderStyle (Slider::Rotary);
+                aSlider->setTextBoxStyle (Slider::NoTextBox, false, 0, 0);
                 aSlider->setTextValueSuffix (parameter->label);
-                aSlider->setTextBoxStyle (Slider::TextBoxLeft,
-                                          false,
-                                          sliderTextEntryBoxWidth,
-                                          sliderTextEntryBoxHeight);
+
+                // Load knob images from binary resources
+                Image knobImage = ImageCache::getFromMemory(BinaryData::knob_png, BinaryData::knob_pngSize);
+                aSlider->setLookAndFeel(new KnobLookAndFeel(knobImage));
 
                 SliderAttachment* aSliderAttachment;
                 sliderAttachments.add (aSliderAttachment =
@@ -94,17 +127,17 @@ DistortionAudioProcessorEditor::~DistortionAudioProcessorEditor()
 {
 }
 
-//==============================================================================
-
 void DistortionAudioProcessorEditor::paint (Graphics& g)
 {
-    g.fillAll (getLookAndFeel().findColour (ResizableWindow::backgroundColourId));
+    // Background already handled by BackgroundComponent
 }
 
 void DistortionAudioProcessorEditor::resized()
 {
     Rectangle<int> r = getLocalBounds().reduced (editorMargin);
     r = r.removeFromRight (r.getWidth() - labelWidth);
+
+    backgroundComponent->setBounds (getLocalBounds());
 
     for (int i = 0; i < components.size(); ++i) {
         if (Slider* aSlider = dynamic_cast<Slider*> (components[i]))
@@ -120,4 +153,3 @@ void DistortionAudioProcessorEditor::resized()
     }
 }
 
-//==============================================================================

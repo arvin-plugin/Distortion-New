@@ -4,8 +4,8 @@
               addUsingNamespaceToJuceHeader="0" displaySplashScreen="1" jucerFormatVersion="1">
   <MAINGROUP id="C4EI0E" name="Gain">
     <GROUP id="{009DC3FC-D4AC-3C11-978F-F9D3990E0395}" name="Source">
-      <FILE id="kqfYI9" name="pluginParameter.h" compile="0" resource="0"
-            file="Source/pluginParameter.h"/>
+      <FILE id="kqfYI9" name="PluginParameter.h" compile="0" resource="0"
+            file="Source/PluginParameter.h"/>
       <FILE id="ySpugx" name="PluginProcessor.cpp" compile="1" resource="0"
             file="Source/PluginProcessor.cpp"/>
       <FILE id="wfOes4" name="PluginProcessor.h" compile="0" resource="0"
@@ -14,6 +14,8 @@
             file="Source/PluginEditor.cpp"/>
       <FILE id="vaBc4w" name="PluginEditor.h" compile="0" resource="0" file="Source/PluginEditor.h"/>
     </GROUP>
+    <FILE id="fR4OqG" name="background.png" compile="0" resource="1" file="../Assets/background.png"/>
+    <FILE id="nbR5tI" name="knob.png" compile="0" resource="1" file="../Assets/knob.png"/>
   </MAINGROUP>
   <MODULES>
     <MODULE id="juce_audio_basics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
